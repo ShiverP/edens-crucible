@@ -1,6 +1,6 @@
 import json
 
-# Function to load data from file
+# Function to load data from pantheon_data.json file
 def load_data():
     try:
         with open("pantheon_data.json", "r") as file:
@@ -8,7 +8,7 @@ def load_data():
     except FileNotFoundError:
         return {"pantheons": []}
 
-# Function to save data to file
+# Function to save data to pantheon_data.json file
 def save_data(data):
     with open("pantheon_data.json", "w") as file:
         json.dump(data, file, indent=4)
