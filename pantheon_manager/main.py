@@ -1,40 +1,81 @@
 import tkinter as tk
 from tkinter import ttk
+import sqlite3
 
-# Create main window
+# Create SQLite database connection
+conn = sqlite3.connect('deities.db')
+c = conn.cursor()
+
+# Create deities table if not exists
+c.execute('''CREATE TABLE IF NOT EXISTS deities (
+                id INTEGER PRIMARY KEY,
+                name TEXT,
+                pantheon TEXT,
+                deity_type TEXT,
+                power_level INTEGER
+             )''')
+conn.commit()
+
+# Function to add deity to database
+def add_deity():
+    name = name_entry.get()
+    pantheon = pantheon_entry.get()
+    deity_type = type_entry.get()
+    power_level = power_entry.get()
+
+    # Check if text fields are empty and replace with None
+    if not name:
+        name = None
+    if not pantheon:
+        pantheon = None
+    if not deity_type:
+        deity_type = None
+    if not power_level:
+        power_level = None
+    else:
+        power_level = int(power_level)
+
+    c.execute('''INSERT INTO deities (name, pantheon, deity_type, power_level)
+                 VALUES (?, ?, ?, ?)''', (name, pantheon, deity_type, power_level))
+    conn.commit()
+
+    # Clear input fields
+    name_entry.delete(0, tk.END)
+    pantheon_entry.delete(0, tk.END)
+    type_entry.delete(0, tk.END)
+    power_entry.delete(0, tk.END)
+
+# Create Tkinter GUI
 root = tk.Tk()
-root.title("Pantheon Manager")
-root.geometry("600x400")
-root.configure(bg="#f0f0f0")  # Set background color
+root.title("Deity Manager")
 
-# Set custom font
-font_style = ("Helvetica", 12)
+# GUI elements
+name_label = ttk.Label(root, text="Name:")
+name_label.grid(row=0, column=0, padx=5, pady=5)
+name_entry = ttk.Entry(root)
+name_entry.grid(row=0, column=1, padx=5, pady=5)
 
-# Create frames
-header_frame = tk.Frame(root, bg="#333333", pady=10)
-header_frame.pack(fill="x")
+pantheon_label = ttk.Label(root, text="Pantheon:")
+pantheon_label.grid(row=1, column=0, padx=5, pady=5)
+pantheon_entry = ttk.Entry(root)
+pantheon_entry.grid(row=1, column=1, padx=5, pady=5)
 
-content_frame = tk.Frame(root, bg="#f0f0f0")
-content_frame.pack(fill="both", expand=True, padx=20, pady=10)
+type_label = ttk.Label(root, text="Type:")
+type_label.grid(row=2, column=0, padx=5, pady=5)
+type_entry = ttk.Entry(root)
+type_entry.grid(row=2, column=1, padx=5, pady=5)
 
-# Create header label
-header_label = tk.Label(header_frame, text="Pantheon Manager", fg="white", bg="#333333", font=("Helvetica", 16))
-header_label.pack()
+power_label = ttk.Label(root, text="Power Level:")
+power_label.grid(row=3, column=0, padx=5, pady=5)
+power_entry = ttk.Entry(root)
+power_entry.grid(row=3, column=1, padx=5, pady=5)
 
-# Create buttons
-add_button = ttk.Button(content_frame, text="Add Pantheon", style="Main.TButton")
-add_button.pack(pady=10)
+add_button = ttk.Button(root, text="Add Deity", command=add_deity)
+add_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
 
-edit_button = ttk.Button(content_frame, text="Edit Pantheon", style="Main.TButton")
-edit_button.pack(pady=10)
-
-remove_button = ttk.Button(content_frame, text="Remove Pantheon", style="Main.TButton")
-remove_button.pack(pady=10)
-
-# Create custom style for buttons
-style = ttk.Style()
-style.configure("Main.TButton", foreground="white", background="#333333", font=font_style, padding=10)
-
-# Run the application
+# Start Tkinter event loop
 root.mainloop()
+
+# Close database connection when done
+conn.close()
 
