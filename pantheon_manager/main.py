@@ -94,7 +94,7 @@ style = ttk.Style()
 style.theme_use('clam')
 
 # Create dark theme
-style.configure('.', background='#333333', foreground='white')
+style.configure('.', background='#333333', foreground='grey')
 style.map('.', background=[('selected', '#777777')])
 
 # Pantheon Manager
