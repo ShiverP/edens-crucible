@@ -88,8 +88,14 @@ create_database()
 # Create main window
 root = tk.Tk()
 root.title("Deity Manager")
-root.geometry("1280x720")
-root.config(bg="#1f1f1f")
+
+# Create style
+style = ttk.Style()
+style.theme_use('clam')
+
+# Create dark theme
+style.configure('.', background='#333333', foreground='white')
+style.map('.', background=[('selected', '#777777')])
 
 # Pantheon Manager
 pantheon_frame = ttk.LabelFrame(root, text="Pantheon Manager", padding=(10, 10))
