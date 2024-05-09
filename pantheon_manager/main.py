@@ -89,12 +89,17 @@ create_database()
 root = tk.Tk()
 root.title("Deity Manager")
 
+# Configure columns and rows to expand with window size
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=1)
+root.rowconfigure(1, weight=1)
+
 # Create style
 style = ttk.Style()
 style.theme_use('clam')
 
 # Create dark theme
-style.configure('.', background='#333333', foreground='grey')
+style.configure('.', background='#333333', foreground='white')
 style.map('.', background=[('selected', '#777777')])
 
 # Pantheon Manager
@@ -123,9 +128,10 @@ name_entry.grid(row=0, column=1, padx=5, pady=5)
 pantheon_label = ttk.Label(god_frame, text="Pantheon:")
 pantheon_label.grid(row=1, column=0, padx=5, pady=5)
 
-pantheon_id_var = tk.StringVar()
+pantheon_id_var = tk.IntVar()
 pantheon_combobox = ttk.Combobox(god_frame, textvariable=pantheon_id_var, state="readonly")
 pantheon_combobox.grid(row=1, column=1, padx=5, pady=5)
+
 populate_pantheon_combobox()
 
 type_label = ttk.Label(god_frame, text="Type:")
