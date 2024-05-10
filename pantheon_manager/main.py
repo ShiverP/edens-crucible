@@ -41,10 +41,13 @@ def add_pantheon():
 # Function to add deity to database
 def add_deity():
     name = name_entry.get()
-    pantheon_id = pantheon_id_var.get()
+    pantheon_name = pantheon_combobox.get() 
     deity_type = type_entry.get()
     power_level = power_entry.get()
     gender = gender_entry.get()
+
+# Retrieve pantheon ID based on the selected pantheon name
+    pantheon_id = get_pantheon_id(pantheon_name)
 
     conn = sqlite3.connect('deities.db')
     c = conn.cursor()
@@ -58,6 +61,8 @@ def add_deity():
     type_entry.delete(0, tk.END)
     power_entry.delete(0, tk.END)
     gender_entry.delete(0, tk.END)
+
+    populate_deities_treeview()
 
 # Function to populate pantheon combobox
 def populate_pantheon_combobox():
@@ -82,6 +87,26 @@ def get_pantheon_id(pantheon_name):
     conn.close()
     return pantheon_id
 
+# Function to populate deities treeview
+def populate_deities_treeview():
+    conn = sqlite3.connect('deities.db')
+    c = conn.cursor()
+
+    deities_treeview.delete(*deities_treeview.get_children())
+
+    c.execute('''SELECT * FROM deities''')
+    deities = c.fetchall()
+
+    for deity in deities:
+        pantheon_id = deity[2]
+        c.execute('''SELECT name FROM pantheons WHERE id = ?''', (pantheon_id,))
+        pantheon_name = c.fetchone()[0]
+
+        deity_data = (deity[1], pantheon_name, deity[3], deity[4], deity[5])
+        deities_treeview.insert('', 'end', values=deity_data)
+
+    conn.close()
+
 # Create database if not exists
 create_database()
 
@@ -99,7 +124,7 @@ style = ttk.Style()
 style.theme_use('clam')
 
 # Create dark theme
-style.configure('.', background='#333333', foreground='white')
+style.configure('.', background='#333333', foreground='grey')
 style.map('.', background=[('selected', '#777777')])
 
 # Pantheon Manager
@@ -154,6 +179,18 @@ gender_entry.grid(row=4, column=1, padx=5, pady=5)
 
 add_deity_button = ttk.Button(god_frame, text="Add Deity", command=add_deity)
 add_deity_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+
+# Deities Treeview
+deities_treeview = ttk.Treeview(god_frame, columns=("Name", "Pantheon", "Type", "Power Level", "Gender"), show="headings")
+deities_treeview.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
+
+deities_treeview.heading("Name", text="Name")
+deities_treeview.heading("Pantheon", text="Pantheon")
+deities_treeview.heading("Type", text="Type")
+deities_treeview.heading("Power Level", text="Power Level")
+deities_treeview.heading("Gender", text="Gender")
+
+populate_deities_treeview()
 
 # Start Tkinter event loop
 root.mainloop()
