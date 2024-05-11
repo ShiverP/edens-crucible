@@ -1,15 +1,15 @@
 # Amun-Ra
 
-Level 378,000
+Level 585,000
 
 
 - Strength: 100,000
 
-- Perception: 5,000
+- Mental: 95,000
 
-- Mental: 3,000
+- Mastery: 120,000
 
-- Mastery: 100,000
+- Perception: 100,000
 
 - Endurance: 50,000
 
@@ -18,69 +18,69 @@ Level 378,000
 
 # Brahma
 
-Level 322,000
+Level 480,000
 
 
-- Strength: 90,000
+- Strength: 100,000
 
-- Mental: 75,000
+- Mental: 80,000
 
-- Mastery: 110,000
+- Mastery: 130,000
 
-- Perception: 32,000
+- Perception: 40,000
 
-- Endurance: 15,000
+- Endurance: 30,000
 
-- Speed: 15,000
+- Speed: 100,000
 
 
 # Vishnu
 
-Level 325,000
+Level 575,000
 
 
-- Strength: 95k
+- Strength: 115,000
 
-- Mental: 95k
+- Mental: 95,000
 
-- Mastery: 110k
+- Mastery: 150,000
 
-- Perception: 35k
+- Perception: 55,000
 
-- Endurance: 15k
+- Endurance: 40,000
 
-- Speed: 40k
+- Speed: 120,000
 
 
 # Shiva
 
-Level 415,000
+Level 605,000
 
 
-- Strength: 120k
+- Strength: 120,000
 
-- Mental: 90k
+- Mental: 90,000
 
-- Mastery: 130k
+- Mastery: 130,000
 
-- Perception: 90k
+- Perception: 90,000
 
-- Endurance: 35k
+- Endurance: 35,000
 
-- Speed: 140k
+- Speed: 140,000
 
 
 # Yweh/Allah/God
 
-Level 330,000
+Level 580,000
 
-- Strength: 70,000
+- Strength: 90,000
 
 - Mental: 100,000
 
 - Mastery: 120,000
 
-- Perception: 200,000
+- Perception: 240,000
 
 - Endurance: 20,000
 
@@ -89,16 +89,16 @@ Level 330,000
 
 # Pangu
 
-Level 
+Level 625,000
 
-- Strength: 110,000
+- Strength: 130,000
 
 - Mental: 80,000
 
-- Mastery: 
+- Mastery: 150,000
 
-- Perception: 
+- Perception: 90,000
 
-- Endurance:
+- Endurance: 35,000
 
-- Speed: 
+- Speed: 140,000
