@@ -22,6 +22,18 @@ def create_database():
                     FOREIGN KEY(pantheon_id) REFERENCES pantheons(id)
                  )''')
 
+    c.execute('''CREATE TABLE IF NOT EXISTS tags (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT
+                 )''')
+
+    c.execute('''CREATE TABLE IF NOT EXISTS deity_tags (
+                    deity_id INTEGER,
+                    tag_id INTEGER,
+                    FOREIGN KEY(deity_id) REFERENCES deities(id),
+                    FOREIGN KEY(tag_id) REFERENCES tags(id)
+                 )''')
+
     conn.commit()
     conn.close()
 
@@ -45,8 +57,9 @@ def add_deity():
     deity_type = type_entry.get()
     power_level = power_entry.get()
     gender = gender_entry.get()
+    tags = tags_entry.get().split(",")  # Split tags by comma
 
-# Retrieve pantheon ID based on the selected pantheon name
+    # Retrieve pantheon ID based on the selected pantheon name
     pantheon_id = get_pantheon_id(pantheon_name)
 
     conn = sqlite3.connect('deities.db')
@@ -54,13 +67,22 @@ def add_deity():
 
     c.execute('''INSERT INTO deities (name, pantheon_id, deity_type, power_level, gender)
                  VALUES (?, ?, ?, ?, ?)''', (name, pantheon_id, deity_type, power_level, gender))
+    deity_id = c.lastrowid  # Get ID of the inserted deity
+
+    # Insert tags for the deity
+    for tag_name in tags:
+        tag_id = get_or_create_tag_id(tag_name.strip())  # Strip whitespace around tags
+        c.execute('''INSERT INTO deity_tags (deity_id, tag_id) VALUES (?, ?)''', (deity_id, tag_id))
+
     conn.commit()
     conn.close()
 
+    # Clear entry fields
     name_entry.delete(0, tk.END)
     type_entry.delete(0, tk.END)
     power_entry.delete(0, tk.END)
     gender_entry.delete(0, tk.END)
+    tags_entry.delete(0, tk.END)
 
     populate_deities_treeview()
 
@@ -87,6 +109,25 @@ def get_pantheon_id(pantheon_name):
     conn.close()
     return pantheon_id
 
+# Function to add tag to database if it doesn't exist, and return its ID
+def get_or_create_tag_id(tag_name):
+    conn = sqlite3.connect('deities.db')
+    c = conn.cursor()
+
+    # Check if tag exists
+    c.execute('''SELECT id FROM tags WHERE name = ?''', (tag_name,))
+    tag_id = c.fetchone()
+
+    if tag_id is None:  # Tag doesn't exist, create it
+        c.execute('''INSERT INTO tags (name) VALUES (?)''', (tag_name,))
+        tag_id = c.lastrowid
+    else:
+        tag_id = tag_id[0]
+
+    conn.commit()
+    conn.close()
+    return tag_id
+
 # Function to populate deities treeview
 def populate_deities_treeview():
     conn = sqlite3.connect('deities.db')
@@ -102,7 +143,16 @@ def populate_deities_treeview():
         c.execute('''SELECT name FROM pantheons WHERE id = ?''', (pantheon_id,))
         pantheon_name = c.fetchone()[0]
 
-        deity_data = (deity[1], pantheon_name, deity[3], deity[4], deity[5])
+        # Retrieve tags for the deity
+        c.execute('''SELECT tags.name FROM tags 
+                     INNER JOIN deity_tags ON tags.id = deity_tags.tag_id 
+                     WHERE deity_tags.deity_id = ?''', (deity[0],))
+        tags = c.fetchall()
+
+        # Concatenate tags into a single string for display
+        tag_names = ', '.join(tag[0] for tag in tags)
+
+        deity_data = (deity[1], pantheon_name, deity[3], deity[4], deity[5], tag_names)
         deities_treeview.insert('', 'end', values=deity_data)
 
     conn.close()
@@ -177,21 +227,27 @@ gender_label.grid(row=4, column=0, padx=5, pady=5)
 gender_entry = ttk.Entry(god_frame)
 gender_entry.grid(row=4, column=1, padx=5, pady=5)
 
+tags_label = ttk.Label(god_frame, text="Tags:")
+tags_label.grid(row=5, column=0, padx=5, pady=5)
+
+tags_entry = ttk.Entry(god_frame)
+tags_entry.grid(row=5, column=1, padx=5, pady=5)
+
 add_deity_button = ttk.Button(god_frame, text="Add Deity", command=add_deity)
-add_deity_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+add_deity_button.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
 
 # Deities Treeview
-deities_treeview = ttk.Treeview(god_frame, columns=("Name", "Pantheon", "Type", "Power Level", "Gender"), show="headings")
-deities_treeview.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
+deities_treeview = ttk.Treeview(god_frame, columns=("Name", "Pantheon", "Type", "Power Level", "Gender", "Tags"), show="headings")
+deities_treeview.grid(row=7, column=0, columnspan=2, padx=5, pady=5)
 
 deities_treeview.heading("Name", text="Name")
 deities_treeview.heading("Pantheon", text="Pantheon")
 deities_treeview.heading("Type", text="Type")
 deities_treeview.heading("Power Level", text="Power Level")
 deities_treeview.heading("Gender", text="Gender")
+deities_treeview.heading("Tags", text="Tags")
 
 populate_deities_treeview()
 
 # Start Tkinter event loop
 root.mainloop()
-
