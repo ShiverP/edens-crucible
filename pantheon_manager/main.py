@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import sqlite3
 
+# Function to create database and tables if not exists
 def create_database():
     conn = sqlite3.connect('deities.db')
     c = conn.cursor()
@@ -36,6 +37,7 @@ def create_database():
     conn.commit()
     conn.close()
 
+# Function to add pantheon to database
 def add_pantheon():
     name = pantheon_entry.get()
 
@@ -48,38 +50,84 @@ def add_pantheon():
 
     pantheon_entry.delete(0, tk.END)
 
+# Function to add deity to database
 def add_deity():
     name = name_entry.get()
-    pantheon_name = pantheon_combobox.get() 
+    pantheon_name = pantheon_combobox.get()
     deity_type = type_entry.get()
     power_level = power_entry.get()
     gender = gender_entry.get()
     tags = tags_entry.get().split(",")  # Split tags by comma
 
-    pantheon_id = get_pantheon_id(pantheon_name)
+# Function to edit deity in database
+def edit_deity():
+    selected_item = deities_treeview.selection()
+    if selected_item:
+        deity_id = deities_treeview.item(selected_item, 'values')[0]
+        name = name_entry.get()
+        pantheon_name = pantheon_combobox.get() 
+        deity_type = type_entry.get()
+        power_level = power_entry.get()
+        gender = gender_entry.get()
+        tags = tags_entry.get().split(",")  # Split tags by comma
 
-    conn = sqlite3.connect('deities.db')
-    c = conn.cursor()
+        # Retrieve pantheon ID based on the selected pantheon name
+        pantheon_id = get_pantheon_id(pantheon_name)
 
-    c.execute('''INSERT INTO deities (name, pantheon_id, deity_type, power_level, gender)
-                 VALUES (?, ?, ?, ?, ?)''', (name, pantheon_id, deity_type, power_level, gender))
-    deity_id = c.lastrowid  # Get ID of the inserted deity
+        conn = sqlite3.connect('deities.db')
+        c = conn.cursor()
 
-    for tag_name in tags:
-        tag_id = get_or_create_tag_id(tag_name.strip())  # Strip whitespace around tags
-        c.execute('''INSERT INTO deity_tags (deity_id, tag_id) VALUES (?, ?)''', (deity_id, tag_id))
+        try:
+            c.execute('''UPDATE deities SET name=?, pantheon_id=?, deity_type=?, power_level=?, gender=? WHERE id=?''',
+                      (name, pantheon_id, deity_type, power_level, gender, deity_id))
 
-    conn.commit()
-    conn.close()
+            # Delete existing tags for the deity
+            print("Deleting existing tags for the deity...")
+            c.execute('''DELETE FROM deity_tags WHERE deity_id=?''', (deity_id,))
 
-    name_entry.delete(0, tk.END)
-    type_entry.delete(0, tk.END)
-    power_entry.delete(0, tk.END)
-    gender_entry.delete(0, tk.END)
-    tags_entry.delete(0, tk.END)
+            # Insert updated tags for the deity
+            for tag_name in tags:
+                print("Adding tag:", tag_name)
+                tag_id = get_or_create_tag_id(c, tag_name.strip())  # Pass cursor object to the function
+                c.execute('''INSERT INTO deity_tags (deity_id, tag_id) VALUES (?, ?)''', (deity_id, tag_id))
 
-    populate_deities_treeview()
+            conn.commit()
+        except Exception as e:
+            conn.rollback()  # Rollback changes if an error occurs
+            print("Error:", e)
+        finally:
+            conn.close()
 
+        # Clear entry fields
+        name_entry.delete(0, tk.END)
+        type_entry.delete(0, tk.END)
+        power_entry.delete(0, tk.END)
+        gender_entry.delete(0, tk.END)
+        tags_entry.delete(0, tk.END)
+
+        populate_deities_treeview()
+    else:
+        print("Please select a deity to edit.")
+
+# Function to handle deity selection in the treeview
+def select_deity(event):
+    selected_item = deities_treeview.selection()
+    if selected_item:
+        deity_data = deities_treeview.item(selected_item, 'values')
+        name_entry.delete(0, tk.END)
+        name_entry.insert(0, deity_data[0])
+        pantheon_combobox.set(deity_data[1])
+        type_entry.delete(0, tk.END)
+        type_entry.insert(0, deity_data[2])
+        power_entry.delete(0, tk.END)
+        power_entry.insert(0, deity_data[3])
+        gender_entry.delete(0, tk.END)
+        gender_entry.insert(0, deity_data[4])
+        tags_entry.delete(0, tk.END)
+        tags_entry.insert(0, deity_data[5])
+
+
+# Function to populate pantheon combobox
 def populate_pantheon_combobox():
     conn = sqlite3.connect('deities.db')
     c = conn.cursor()
@@ -91,6 +139,7 @@ def populate_pantheon_combobox():
 
     conn.close()
 
+# Function to retrieve pantheon ID based on name
 def get_pantheon_id(pantheon_name):
     conn = sqlite3.connect('deities.db')
     c = conn.cursor()
@@ -101,10 +150,9 @@ def get_pantheon_id(pantheon_name):
     conn.close()
     return pantheon_id
 
-def get_or_create_tag_id(tag_name):
-    conn = sqlite3.connect('deities.db')
-    c = conn.cursor()
-
+# Function to add tag to database if it doesn't exist, and return its ID
+def get_or_create_tag_id(c, tag_name):
+    # Check if tag exists
     c.execute('''SELECT id FROM tags WHERE name = ?''', (tag_name,))
     tag_id = c.fetchone()
 
@@ -114,10 +162,9 @@ def get_or_create_tag_id(tag_name):
     else:
         tag_id = tag_id[0]
 
-    conn.commit()
-    conn.close()
     return tag_id
 
+# Function to populate deities treeview
 def populate_deities_treeview():
     conn = sqlite3.connect('deities.db')
     c = conn.cursor()
@@ -132,11 +179,13 @@ def populate_deities_treeview():
         c.execute('''SELECT name FROM pantheons WHERE id = ?''', (pantheon_id,))
         pantheon_name = c.fetchone()[0]
 
-        c.execute('''SELECT tags.name FROM tags 
-                     INNER JOIN deity_tags ON tags.id = deity_tags.tag_id 
+        # Retrieve tags for the deity
+        c.execute('''SELECT tags.name FROM tags
+                     INNER JOIN deity_tags ON tags.id = deity_tags.tag_id
                      WHERE deity_tags.deity_id = ?''', (deity[0],))
         tags = c.fetchall()
 
+        # Concatenate tags into a single string for display
         tag_names = ', '.join(tag[0] for tag in tags)
 
         deity_data = (deity[1], pantheon_name, deity[3], deity[4], deity[5], tag_names)
@@ -144,21 +193,32 @@ def populate_deities_treeview():
 
     conn.close()
 
+# Function to refresh the treeview with updated data
+
+def refresh_deities():
+    populate_deities_treeview()
+
+# Create database if not exists
 create_database()
 
+# Create main window
 root = tk.Tk()
 root.title("Deity Manager")
 
+# Configure columns and rows to expand with window size
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
 
+# Create style
 style = ttk.Style()
 style.theme_use('clam')
 
+# Create dark theme
 style.configure('.', background='#333333', foreground='grey')
 style.map('.', background=[('selected', '#777777')])
 
+# Pantheon Manager
 pantheon_frame = ttk.LabelFrame(root, text="Pantheon Manager", padding=(10, 10))
 pantheon_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
@@ -171,6 +231,7 @@ pantheon_entry.grid(row=0, column=1, padx=5, pady=5)
 add_pantheon_button = ttk.Button(pantheon_frame, text="Add Pantheon", command=add_pantheon)
 add_pantheon_button.grid(row=0, column=2, padx=5, pady=5)
 
+# God Manager
 god_frame = ttk.LabelFrame(root, text="God Manager", padding=(10, 10))
 god_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
@@ -216,8 +277,15 @@ tags_entry.grid(row=5, column=1, padx=5, pady=5)
 add_deity_button = ttk.Button(god_frame, text="Add Deity", command=add_deity)
 add_deity_button.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
 
+refresh_button = ttk.Button(god_frame, text="Refresh", command=refresh_deities)
+refresh_button.grid(row=7, column=0, columnspan=2, padx=5, pady=5)
+
+edit_deity_button = ttk.Button(god_frame, text="Edit Deity", command=edit_deity)
+edit_deity_button.grid(row=9, column=0, columnspan=2, padx=5, pady=5)
+
+# Deities Treeview
 deities_treeview = ttk.Treeview(god_frame, columns=("Name", "Pantheon", "Type", "Power Level", "Gender", "Tags"), show="headings")
-deities_treeview.grid(row=7, column=0, columnspan=2, padx=5, pady=5)
+deities_treeview.grid(row=8, column=0, columnspan=2, padx=5, pady=5)
 
 deities_treeview.heading("Name", text="Name")
 deities_treeview.heading("Pantheon", text="Pantheon")
@@ -228,5 +296,9 @@ deities_treeview.heading("Tags", text="Tags")
 
 populate_deities_treeview()
 
+# Bind select_deity function to click event on treeview
+deities_treeview.bind('<ButtonRelease-1>', select_deity)
+
 # Start Tkinter event loop
 root.mainloop()
+
