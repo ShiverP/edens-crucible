@@ -1,8 +1,8 @@
 # Edens-crucible
 
 Developing a story driven RPG with plenty of mythology and sci-fi. 
-Eden's story is whatever you wish for it to be. Will you be focused solely on destroying your enemies and fighting your way through the content, or will you be reasoning with everyone, trying to resolve conflicts through communication, understanding and love?
+Playable character named Eden is an angel that basically has their own fall from grace. The player decides exactly how the story goes with an almost exhaustive amount of choices. 
 
 Currently in development:
 
-- Pantheon manager - A program, written in Python, for creating, managing and viewing the characters in the game. 
+- Pantheon manager - A program, written in Python, for creating, managing and viewing the deities in the game. Subject to change from being deity and myth oriented to just straight up characters. 
