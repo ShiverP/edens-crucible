@@ -1,6 +1,7 @@
 # Edens-crucible
 
-Developing a story driven RPG with plenty of mythology and sci-fi. 
+An interactive story with plenty of mythology and sci-fi.
+ 
 Playable character named Eden is an angel that basically has their own fall from grace. The player decides exactly how the story goes with an almost exhaustive amount of choices. 
 
 Currently in development:
