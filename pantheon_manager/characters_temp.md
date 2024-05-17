@@ -102,3 +102,20 @@ Level 625,000
 - Endurance: 35,000
 
 - Speed: 140,000
+
+
+# Buri
+
+level 310,000
+
+- Strength: 100,000
+
+- Mental: 70,000
+
+- Mastery: 100,000 
+
+- Perception: 40,000 
+
+- Endurance: 50,000 
+
+- Speed: 50,000 
