@@ -70,7 +70,7 @@ Level 605,000
 - Speed: 140,000
 
 
-# Yweh/Allah/God
+# Yahweh/Allah/God
 
 Level 580,000
 
