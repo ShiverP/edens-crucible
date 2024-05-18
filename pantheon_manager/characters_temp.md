@@ -119,3 +119,54 @@ level 310,000
 - Endurance: 50,000 
 
 - Speed: 50,000 
+
+
+# Urd(Echo)
+
+Level 410,000
+
+- Strength: 50
+
+- Mental: 150,000
+
+- Mastery: 65,000 
+
+- Perception: 140,000 
+
+- Endurance: 50 
+
+- Speed: 50
+
+
+# Verdandi(Weaver)
+
+Level 385,000
+
+- Strength: 50
+
+- Mental: 125,000
+
+- Mastery: 70,000 
+
+- Perception: 140,000 
+
+- Endurance: 50 
+
+- Speed: 50
+
+
+# Skuld(Harbinger)
+
+Level 380,000
+
+- Strength: 50
+
+- Mental: 125,000
+
+- Mastery: 60,000 
+
+- Perception: 140,000 
+
+- Endurance: 50 
+
+- Speed: 50
