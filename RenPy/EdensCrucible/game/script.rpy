@@ -1,8 +1,8 @@
 ﻿label start:
-    scene black
-    
+  scene black
+
     ## with dissolve:
-        ## scene cosmic_void
+    ## scene cosmic_void
     
     "In the beginning, the multiverse was a boundless expanse of potential, where chaos and order wove together in a cosmic dance."
     
@@ -21,7 +21,7 @@
     "The three Norns, Urd, Verdandi, and Skuld, shaping destinies with their wisdom."
     
     ## with dissolve:
-        ## scene black
+    ## scene black
     
     show text "Eden's Crucible" at center
     
